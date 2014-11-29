@@ -2689,7 +2689,7 @@ Input suspension is supported with raw-data decompression: if the data source
 module suspends, jpeg_read_raw_data() will return 0.  You can also use
 buffered-image mode to read raw data in multiple passes.
 
-
+介绍如何获取DCT变换后的原始数据
 Really raw data: DCT coefficients
 ---------------------------------
 

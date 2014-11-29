@@ -809,6 +809,8 @@ struct jpeg_source_mgr {
 #define JPOOL_NUMPOOLS	2
 
 typedef struct jvirt_sarray_control * jvirt_sarray_ptr;
+// 量化系数的返回类型,实际是被引入类型`jvirt_barray_control`进行typedef重命名的类型
+// `jvirt_barray_control`定义在`jmemmgr.c`的167行
 typedef struct jvirt_barray_control * jvirt_barray_ptr;
 
 
@@ -1089,6 +1091,7 @@ EXTERN(void) jpeg_set_marker_processor
 	JPP((j_decompress_ptr cinfo, int marker_code,
 	     jpeg_marker_parser_method routine));
 
+// 获取量化系数的函数声明,返回类型声明在`jpeglib.h`的812行
 /* Read or write raw DCT coefficients --- useful for lossless transcoding. */
 EXTERN(jvirt_barray_ptr *) jpeg_read_coefficients JPP((j_decompress_ptr cinfo));
 EXTERN(void) jpeg_write_coefficients JPP((j_compress_ptr cinfo,

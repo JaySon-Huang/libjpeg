@@ -164,6 +164,8 @@ struct jvirt_sarray_control {
   backing_store_info b_s_info;	/* System-dependent control info */
 };
 
+// `jvirt_barray_control`类型定义
+// 此类型用在获取 进行DCT变换后的量化系数 的方法的返回值中
 struct jvirt_barray_control {
   JBLOCKARRAY mem_buffer;	/* => the in-memory buffer */
   JDIMENSION rows_in_array;	/* total virtual array height */
