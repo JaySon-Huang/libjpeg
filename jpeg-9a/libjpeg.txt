@@ -2689,7 +2689,7 @@ Input suspension is supported with raw-data decompression: if the data source
 module suspends, jpeg_read_raw_data() will return 0.  You can also use
 buffered-image mode to read raw data in multiple passes.
 
-介绍如何获取DCT变换后的原始数据
+# 介绍如何获取DCT变换后的原始数据(量化系数)
 Really raw data: DCT coefficients
 ---------------------------------
 
@@ -2699,6 +2699,10 @@ transcoding between different JPEG file formats.  Other possible applications
 include lossless cropping of a JPEG image, lossless reassembly of a
 multi-strip or multi-tile TIFF/JPEG file into a single JPEG datastream, etc.
 
+# 介绍获取量化系数的整个流程
+# 1. 使用`jpeg_read_header`读取一个文件
+# 2. 使用`jpeg_read_coefficients`获取量化表矩阵
+# 3. 返回值是`virtual-array descriptors`的数组指针，每一个`virtual-array`都可以使用JPEG memory manager's access_virt_barray 方式来获取(详情看下方的 ** Memory management ** 以及 ** structure.txt ** 中对`virtual array的`讨论)
 To read the contents of a JPEG file as DCT coefficients, open the file and do
 jpeg_read_header() as usual.  But instead of calling jpeg_start_decompress()
 and jpeg_read_scanlines(), call jpeg_read_coefficients().  This will read the
@@ -2710,6 +2714,7 @@ and also read structure.txt's discussion of virtual array handling).  Or,
 for simple transcoding to a different JPEG file format, the array list can
 just be handed directly to jpeg_write_coefficients().
 
+# block数组中存储的每一个block都是以正常顺序存储量化系数(而不是用zigzag顺序)
 Each block in the block arrays contains quantized coefficient values in
 normal array order (not JPEG zigzag order).  The block arrays contain only
 DCT blocks containing real data; any entirely-dummy blocks added to fill out
@@ -2719,6 +2724,7 @@ block array can be determined from the width_in_blocks and height_in_blocks
 fields of the component's comp_info entry.)  This is also the data format
 expected by jpeg_write_coefficients().
 
+# 用完`virtual arrays`之后，调用`jpeg_finish_decompress`可以释放数组的存储空间并把`decompression object`设置为空闲状态。如果不需要在使用`decompression object`的话，可以直接调用`jpeg_destroy`
 When you are done using the virtual arrays, call jpeg_finish_decompress()
 to release the array storage and return the decompression object to an idle
 state; or just call jpeg_destroy() if you don't need to reuse the object.
@@ -2736,7 +2742,7 @@ image mode as discussed previously, then call jpeg_read_coefficients() after
 the last jpeg_finish_output() call.  The arrays will be available for your use
 until you call jpeg_finish_decompress().
 
-
+# 介绍如和利用DCT系数构建jpeg图像
 To write the contents of a JPEG file as DCT coefficients, you must provide
 the DCT coefficients stored in virtual block arrays.  You can either pass
 block arrays read from an input JPEG file by jpeg_read_coefficients(), or
@@ -2752,6 +2758,7 @@ jpeg_start_compress() and jpeg_write_scanlines().  Thus the sequence is
 jpeg_write_coefficients() is passed a pointer to an array of virtual block
 array descriptors; the number of arrays is equal to cinfo.num_components.
 
+# 说明对虚拟矩阵的修改会在`jpeg_finish_compress`后真正地写入为jpeg文件,`jpeg_write_coefficients`只是写入文件头
 The virtual arrays need only have been requested, not realized, before
 jpeg_write_coefficients() is called.  A side-effect of
 jpeg_write_coefficients() is to realize any virtual arrays that have been
@@ -2761,6 +2768,7 @@ after calling jpeg_write_coefficients().  The data is actually written out
 when you call jpeg_finish_compress(); jpeg_write_coefficients() only writes
 the file header.
 
+# 如果从DCT系数构建一张jpeg图像的话，可以利用`jpeg_copy_critical_parameters`从已有图像中获取一些关键的参数。如量化表、取样因子等。
 When writing raw DCT coefficients, it is crucial that the JPEG quantization
 tables and sampling factors match the way the data was encoded, or the
 resulting file will be invalid.  For transcoding from an existing JPEG file,
@@ -2869,6 +2877,7 @@ Use alloc_large instead of alloc_small for anything bigger than a few Kbytes.
 There are also alloc_sarray and alloc_barray routines that automatically
 build 2-D sample or block arrays.
 
+# 处理一张图片所需的内存空间取决于图片的宽度，与高度无关。因为库内是缓存上下数行的形式来处理图片的
 The library's minimum space requirements to process an image depend on the
 image's width, but not on its height, because the library ordinarily works
 with "strip" buffers that are as wide as the image but just a few rows high.
@@ -2876,6 +2885,8 @@ Some operating modes (eg, two-pass color quantization) require full-image
 buffers.  Such buffers are treated as "virtual arrays": only the current strip
 need be in memory, and the rest can be swapped out to a temporary file.
 
+# 这个库中使用的内存管理`jmemnobs.c`只是简单地使用malloc，如果要处理的一张图片比可拥有的空间大的话，只有当系统支持虚拟内存管理才可以处理，否则就可能失败。如果需要处理这种情况，你需要自己重新定义`jmemnobs.c`
+# 话说现在就算是内存有限的嵌入式系统一般也支持虚拟内存了吧。。？
 If you use the simplest memory manager back end (jmemnobs.c), then no
 temporary files are used; virtual arrays are simply malloc()'d.  Images bigger
 than memory can be processed only if your system supports virtual memory.
