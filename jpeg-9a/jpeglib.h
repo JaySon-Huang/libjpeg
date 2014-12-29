@@ -71,8 +71,9 @@ extern "C" {
  * On 80x86 machines, the image arrays are too big for near pointers,
  * but the pointer arrays can fit in near memory.
  */
-
+// unsigned char *
 typedef JSAMPLE FAR *JSAMPROW;	/* ptr to one image row of pixel samples. */
+// unsigned char **
 typedef JSAMPROW *JSAMPARRAY;	/* ptr to some rows (a 2-D sample array) */
 typedef JSAMPARRAY *JSAMPIMAGE;	/* a 3-D sample array: top index is color */
 
@@ -88,6 +89,7 @@ typedef JCOEF FAR *JCOEFPTR;	/* useful in a couple of places */
 
 
 /* DCT coefficient quantization tables. */
+/* DCT量化系数表 */
 
 typedef struct {
   /* This array gives the coefficient quantizers in natural array order
@@ -105,6 +107,7 @@ typedef struct {
 
 
 /* Huffman coding tables. */
+/* 哈夫曼编码表 */
 
 typedef struct {
   /* These two fields directly represent the contents of a JPEG DHT marker */
@@ -260,6 +263,7 @@ typedef enum {
 
 
 /* Common fields between JPEG compression and decompression master structs. */
+/* 相当于C++中基类的存在，定义压缩/解压的struct中共同拥有的成员变量 */
 
 #define jpeg_common_fields \
   struct jpeg_error_mgr * err;	/* Error handler module */\

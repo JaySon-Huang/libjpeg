@@ -244,6 +244,13 @@ write_JPEG_file (char * filename, int quality)
  * standard JPEG error handler object.  (If we were using C++, we'd say we
  * were making a subclass of the regular error handler.)
  *
+ * 这里使用C中的`setjmp`/`longjmp`函数来返回控制流。 这意味着在调用JPEG库之前必须先执行
+ * `setjmp()`函数来建立返回点。 
+ * 我们想这个新的`error_exit`调用longjmp()。 但是我们需要使得error_exit对这个setjmp缓冲区
+ * 有访问权限。
+ * 为了达到这个目的，我们需要自行扩展一个标准的JPEG错误控制对象。(在C++中，可以理解为
+ * 我们正在建立一个普通错误控制类的子类)
+ *
  * Here's the extended error handler struct:
  */
 
