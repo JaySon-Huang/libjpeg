@@ -739,7 +739,8 @@ do_rot_180 (j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
   }
 }
 
-
+// 一个 `jvirt_barray_ptr *` 的操作实例
+// 横向翻转
 LOCAL(void)
 do_transverse (j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
 	       JDIMENSION x_crop_offset, JDIMENSION y_crop_offset,
@@ -768,6 +769,7 @@ do_transverse (j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
     (dstinfo->max_v_samp_factor * dstinfo->min_DCT_v_scaled_size);
 
   for (ci = 0; ci < dstinfo->num_components; ci++) {
+    // compptr指向第ci个颜色分量的信息
     compptr = dstinfo->comp_info + ci;
     comp_width = MCU_cols * compptr->h_samp_factor;
     comp_height = MCU_rows * compptr->v_samp_factor;
@@ -782,6 +784,7 @@ do_transverse (j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
 	for (dst_blk_x = 0; dst_blk_x < compptr->width_in_blocks;
 	     dst_blk_x += compptr->h_samp_factor) {
 	  if (x_crop_blocks + dst_blk_x < comp_width) {
+        // 调用 `jmemgr.c` 844行定义的访问函数
 	    /* Block is within the mirrorable area. */
 	    src_buffer = (*srcinfo->mem->access_virt_barray)
 	      ((j_common_ptr) srcinfo, src_coef_arrays[ci],
@@ -798,6 +801,9 @@ do_transverse (j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
 	    dst_ptr = dst_buffer[offset_y][dst_blk_x + offset_x];
 	    if (y_crop_blocks + dst_blk_y < comp_height) {
 	      if (x_crop_blocks + dst_blk_x < comp_width) {
+        // 获取一个8*8DCT数据块:
+        //   src_buffer[compptr->h_samp_factor - offset_x - 1]
+        //             [comp_height - y_crop_blocks - dst_blk_y - offset_y - 1] 
 		/* Block is within the mirrorable area. */
 		src_ptr = src_buffer[compptr->h_samp_factor - offset_x - 1]
 		  [comp_height - y_crop_blocks - dst_blk_y - offset_y - 1];

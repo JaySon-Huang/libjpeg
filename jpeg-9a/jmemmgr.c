@@ -167,19 +167,20 @@ struct jvirt_sarray_control {
 // `jvirt_barray_control`类型定义
 // 此类型用在获取 进行DCT变换后的量化系数 的方法的返回值中
 struct jvirt_barray_control {
-  JBLOCKARRAY mem_buffer;	/* => the in-memory buffer */
-  JDIMENSION rows_in_array;	/* total virtual array height */
+  JBLOCKARRAY mem_buffer;	/* => the in-memory buffer 指向内存缓冲区 */
+  JDIMENSION rows_in_array;	/* total virtual array height  */
   JDIMENSION blocksperrow;	/* width of array (and of memory buffer) */
   JDIMENSION maxaccess;		/* max rows accessed by access_virt_barray */
-  JDIMENSION rows_in_mem;	/* height of memory buffer */
+  JDIMENSION rows_in_mem;	/* height of memory buffer 在内存中内容的高度 */
   JDIMENSION rowsperchunk;	/* allocation chunk size in mem_buffer */
-  JDIMENSION cur_start_row;	/* first logical row # in the buffer */
-  JDIMENSION first_undef_row;	/* row # of first uninitialized row */
+  JDIMENSION cur_start_row;	/* first logical row # in the buffer 内存中内容的第一行的行号 */
+  JDIMENSION first_undef_row;	/* row # of first uninitialized row 第一个没有初始化的行的行号，可以看作是含数据的最后一行的后一行 */
   boolean pre_zero;		/* pre-zero mode requested? */
-  boolean dirty;		/* do current buffer contents need written? */
-  boolean b_s_open;		/* is backing-store data valid? */
-  jvirt_barray_ptr next;	/* link to next virtual barray control block */
-  backing_store_info b_s_info;	/* System-dependent control info */
+  // 有 `dirty` 字段, 应该有相应的读函数来处理读出数据. 在本文件844行
+  boolean dirty;		/* do current buffer contents need written? 是否"脏"数据,需要写回? */
+  boolean b_s_open;		/* is backing-store data valid? 有没有恢复的数据 */
+  jvirt_barray_ptr next;	/* link to next virtual barray control block 下一块数据块 */
+  backing_store_info b_s_info;	/* System-dependent control info 恢复数据的内容 */
 };
 
 
@@ -854,7 +855,7 @@ access_virt_barray (j_common_ptr cinfo, jvirt_barray_ptr ptr,
   /* debugging check */
   if (end_row > ptr->rows_in_array || num_rows > ptr->maxaccess ||
       ptr->mem_buffer == NULL)
-    ERREXIT(cinfo, JERR_BAD_VIRTUAL_ACCESS);
+      ERREXIT(cinfo, JERR_BAD_VIRTUAL_ACCESS);
 
   /* Make the desired part of the virtual array accessible */
   if (start_row < ptr->cur_start_row ||
@@ -881,7 +882,7 @@ access_virt_barray (j_common_ptr cinfo, jvirt_barray_ptr ptr,
 
       ltemp = (long) end_row - (long) ptr->rows_in_mem;
       if (ltemp < 0)
-	ltemp = 0;		/* don't fall off front end of file */
+	      ltemp = 0;		/* don't fall off front end of file */
       ptr->cur_start_row = (JDIMENSION) ltemp;
     }
     /* Read in the selected part of the array.
@@ -897,7 +898,7 @@ access_virt_barray (j_common_ptr cinfo, jvirt_barray_ptr ptr,
   if (ptr->first_undef_row < end_row) {
     if (ptr->first_undef_row < start_row) {
       if (writable)		/* writer skipped over a section of array */
-	ERREXIT(cinfo, JERR_BAD_VIRTUAL_ACCESS);
+        ERREXIT(cinfo, JERR_BAD_VIRTUAL_ACCESS);
       undef_row = start_row;	/* but reader is allowed to read ahead */
     } else {
       undef_row = ptr->first_undef_row;
@@ -909,12 +910,12 @@ access_virt_barray (j_common_ptr cinfo, jvirt_barray_ptr ptr,
       undef_row -= ptr->cur_start_row; /* make indexes relative to buffer */
       end_row -= ptr->cur_start_row;
       while (undef_row < end_row) {
-	FMEMZERO((void FAR *) ptr->mem_buffer[undef_row], bytesperrow);
-	undef_row++;
+	      FMEMZERO((void FAR *) ptr->mem_buffer[undef_row], bytesperrow);
+	      undef_row++;
       }
     } else {
       if (! writable)		/* reader looking at undefined data */
-	ERREXIT(cinfo, JERR_BAD_VIRTUAL_ACCESS);
+      	ERREXIT(cinfo, JERR_BAD_VIRTUAL_ACCESS);
     }
   }
   /* Flag the buffer dirty if caller will write in it */

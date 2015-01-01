@@ -500,6 +500,7 @@ main (int argc, char **argv)
   }
 #endif
 
+  // 读取DCT量化后的系数。返回值为 `jvirt_barray_ptr*`
   /* Read source file as DCT coefficients */
   src_coef_arrays = jpeg_read_coefficients(&srcinfo);
 
@@ -510,6 +511,7 @@ main (int argc, char **argv)
    * also find out which set of coefficient arrays will hold the output.
    */
 #if TRANSFORMS_SUPPORTED
+  // 定义在 `transupp.c` 的1479行.
   dst_coef_arrays = jtransform_adjust_parameters(&srcinfo, &dstinfo,
 						 src_coef_arrays,
 						 &transformoption);
@@ -552,6 +554,7 @@ main (int argc, char **argv)
 
   /* Execute image transformation, if any */
 #if TRANSFORMS_SUPPORTED
+  // 定义在 `transupp.c` 的1575行
   jtransform_execute_transformation(&srcinfo, &dstinfo,
 				    src_coef_arrays,
 				    &transformoption);
