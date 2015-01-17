@@ -145,14 +145,17 @@ read_JPEG_file (const char * filename)
         for (int row=0; row != com_coef_array->rows_in_mem; ++row){
             for (int col=0; col != com_coef_array->blocksperrow; ++col){
                 JCOEF *pcoef = block_array[row][col];
-                printf("[");
-                for (int i=0; i != DCTSIZE2; ++i){
-                    if (i%8==0){ printf("\n"); }
-                    printf("%3d,", pcoef[i]);
-                }
-                printf("]\n");
+                // printf("[");
+                // for (int i=0; i != DCTSIZE2; ++i){
+                //   if (i!=0&&i%8==0){ printf("\n"); }
+                //   printf("%3d,\n", pcoef[i]);
+                // }
+                // printf("]\n");
             }
         }
+        printf("%d Coef blocks in Components %d. \n",
+            (com_coef_array->rows_in_mem)*(com_coef_array->blocksperrow)
+            , ci);
     }
 
     (void) jpeg_finish_decompress(&cinfo);

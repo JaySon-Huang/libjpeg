@@ -554,7 +554,7 @@ main (int argc, char **argv)
 
   /* Execute image transformation, if any */
 #if TRANSFORMS_SUPPORTED
-  // 定义在 `transupp.c` 的1575行
+  // 定义在 `transupp.c` 的1581行
   jtransform_execute_transformation(&srcinfo, &dstinfo,
 				    src_coef_arrays,
 				    &transformoption);
