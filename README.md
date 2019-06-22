@@ -1,13 +1,18 @@
-libjpeg-9a源码阅读笔记
+libjpeg-9a/libjpeg-9c源码阅读笔记
 ====
 由IJG(Independent JPEG Group)维护的libjpeg库，是常用的操作jpeg文件的C库，但是缺乏文档，难以扩展。  
 利用这一个repo做源码阅读以及例程编写，为其他库做基础。
 
 ## 安装libjpeg
 `Mac OS X`:
-(注意至今(2015-01-17)为止,通过`brew`安装的libjpeg仍为8d版本,原因在此[jpeg v9a (Discuss bump) #35371](https://github.com/Homebrew/homebrew/issues/35371))  
-    
-    brew install libjpeg
+```
+brew install libjpeg
+```
+
+Update：
+2019-06-23, `brew` 安装的libjpeg为9c版本. (released on 14-Jan-2018)  
+
+(至(2015-01-17)为止,通过`brew`安装的libjpeg仍为8d版本,原因在此[jpeg v9a (Discuss bump) #35371](https://github.com/Homebrew/homebrew/issues/35371))  
 
 ## 说明
 
@@ -23,4 +28,4 @@ libjpeg-9a源码阅读笔记
 
 编译:
     
-    gcc jpeggetdct.c -o joeggetdct -ljpeg
+    gcc jpeggetdct.c -o jpeggetdct -ljpeg
